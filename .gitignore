@@ -1,9 +1,15 @@
-# python
-*.pyc
-
-# secret django settings
+# django
 /exams_app/settings_secret.py
 /exams_app/settings_secret.pyc
+*.sqlite3
+*.egg-info
+*.pot
+*.py[cod]
+__pycache__
+tests/coverage_html/
+tests/.coverage
+build/
+tests/report/
 
 # IDEs
 .idea
