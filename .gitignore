@@ -1,2 +1,10 @@
+# python
+*.pyc
+
+# secret django settings
 /exams_app/settings_secret.py
 /exams_app/settings_secret.pyc
+
+# IDEs
+.idea
+*.iml
