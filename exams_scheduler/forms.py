@@ -7,3 +7,10 @@ class ProfessorDayForm(forms.ModelForm):
     class Meta:
         model = ProfessorDay
         fields = ['time', 'comment', 'available']
+
+
+class AddExamForm(forms.ModelForm):
+    class Meta:
+        model = ProfessorDay
+        fields = ['exam_group', 'date', 'professor']
+

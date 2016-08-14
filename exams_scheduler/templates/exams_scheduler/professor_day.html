@@ -1,6 +1,11 @@
-Professor's day
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="отправить">
-</form>
+{% extends 'exams_scheduler/base.html' %}
+{% block content %}
+    {{ days }}
+    Professor's day
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="отправить">
+    </form>
+
+{% endblock %}

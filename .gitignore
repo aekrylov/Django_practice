@@ -1,4 +1,5 @@
 # django
+migrations
 /exams_app/settings_secret.py
 /exams_app/settings_secret.pyc
 *.sqlite3

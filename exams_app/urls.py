@@ -17,9 +17,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
+from exams_app.views import LoginView, logout_view
 from exams_scheduler import urls as scheduler_urls
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls, name='admin'),
+    url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^logout/$', logout_view, name='logout'),
     url(r'^', include(scheduler_urls))
 ]
