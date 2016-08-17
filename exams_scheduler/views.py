@@ -1,3 +1,5 @@
+from calendar import Calendar
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.urlresolvers import reverse
@@ -34,6 +36,28 @@ def is_group(user):
     except:
         is_group = False
     return is_group
+
+
+def get_calendar(professor, month=6):
+    '''
+    get calendar for given month
+    :return:
+    '''
+    now = datetime.datetime.now().date().replace(month=month)
+
+    events = ProfessorDay.objects.filter(professor=professor)
+
+    calendar = Calendar(0)
+    weeks = calendar.monthdayscalendar(month=month, year=now.year)
+    days = dict(
+        map(lambda entry: (entry.date.day, {'date': entry.date,
+                                            'available': entry.available,
+                                            'exam': entry.exam_group}
+                           ), events)
+    )
+
+    weeks = map(lambda week: map(lambda day: days[day] if day in days else {}, week), weeks)
+    return weeks
 
 
 def get_professor_day(professor_id, date):
@@ -76,7 +100,9 @@ class ProfessorDayView(UserPassesTestMixin, generic.UpdateView):
         context = super(ProfessorDayView, self).get_context_data(**kwargs)
 
         days = ProfessorDay.objects.filter(professor=self.request.user.professor)
+        weeks = get_calendar(professor=self.request.user.professor)
         context['days'] = days
+        context['weeks'] = weeks
 
         return context
 

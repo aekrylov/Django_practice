@@ -1,6 +1,5 @@
-{% extends 'exams_scheduler/base.html' %}
-{% block content %}
-    {{ days }}
+{% extends 'exams_scheduler/professor_index.html' %}
+{% block form %}
     Professor's day
     <form method="post">
         {% csrf_token %}

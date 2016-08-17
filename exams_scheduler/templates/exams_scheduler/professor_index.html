@@ -1,7 +1,10 @@
 {% extends 'exams_scheduler/base.html' %}
 
 {% block content %}
-You're at professor index
-индекс
-    {{ days }}
+    {% block form %}
+        Professor index
+    {% endblock %}
+
+    {% include 'exams_scheduler/calendar.html' %}
+
 {% endblock %}

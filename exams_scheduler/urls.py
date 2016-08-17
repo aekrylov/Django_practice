@@ -17,6 +17,6 @@ urlpatterns = [
 
     url(r'^professor/', include([
         url(r'^$', ProfessorView.as_view(), name='professor_index'),
-        url(r'^(?P<day>[0-9]{2})-(?P<month>[0-9]{2})/$', ProfessorDayView.as_view(), name='professor_day')
+        url(r'^(?P<day>[0-9]{1,2})-(?P<month>[0-9]{1,2})/$', ProfessorDayView.as_view(), name='professor_day')
     ]))
 ]
