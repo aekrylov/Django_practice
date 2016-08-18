@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^$', redirect, name='redirect'),
 
     url(r'^student/', include([
-        url(r'^$', TemplateView.as_view(template_name='exams_scheduler/student_index.html'), name='student_index'),
+        url(r'^$', StudentIndexView.as_view(), name='student_index'),
         url(r'^(?P<professor_id>[0-9]+)/$', StudentDetailView.as_view(), name='student_detail'),
         url(r'^add/$', student_add),
         url(r'^delete/$', student_delete)

@@ -1,0 +1,11 @@
+{% if day.date != None %}
+    {% if role == 'professor' %}
+        <a href="{% url 'exams_scheduler:professor_day' day=day.date|date:'d' month=day.date|date:'m' %}">
+            {{ day }}
+        </a>
+    {% elif role == 'student' %}
+        <a href="#">
+            {{ day }}
+        </a>
+    {% endif %}
+{% endif %}

@@ -10,39 +10,49 @@ from django.shortcuts import get_object_or_404
 
 # Create your views here.
 from django.views import generic
+from django.views.generic.base import ContextMixin
 
 from exams_scheduler.forms import ProfessorDayForm
-from .models import ProfessorDay
+from .models import ProfessorDay, Professor
 
 import datetime
 
 
-def get_professor(request):
-    return request.user.professor
-
-
 def is_prof(user):
     try:
-        is_prof = user.professor is not None
+        return user.professor is not None
     except:
-        is_prof = False
-
-    return is_prof
+        return False
 
 
 def is_group(user):
     try:
-        is_group = user.group is not None
+        return user.group is not None
     except:
-        is_group = False
-    return is_group
+        return False
+
+
+class UserIsProfessorMixin(UserPassesTestMixin):
+    def test_func(self):
+        return is_prof(self.request.user)
+
+
+class UserIsStudentMixin(UserPassesTestMixin):
+    def test_func(self):
+        return is_group(self.request.user)
+
+
+@login_required()
+def redirect(request):
+    url = 'exams_scheduler:professor_index' if is_prof(request.user) else 'exams_scheduler:student_index'
+    return HttpResponseRedirect(reverse(url))
 
 
 def get_calendar(professor, month=6):
-    '''
+    """
     get calendar for given month
     :return:
-    '''
+    """
     now = datetime.datetime.now().date().replace(month=month)
 
     events = ProfessorDay.objects.filter(professor=professor)
@@ -60,58 +70,52 @@ def get_calendar(professor, month=6):
     return weeks
 
 
+class CalendarMixin(ContextMixin):
+
+    def get_context_data(self, **kwargs):
+        context = super(CalendarMixin, self).get_context_data(**kwargs)
+        professor = self.request.user.professor if is_prof(self.request.user) else\
+            get_object_or_404(Professor, pk=self.kwargs['professor_id'])
+
+        context['weeks'] = get_calendar(professor)
+
+        return context
+
+
 def get_professor_day(professor_id, date):
     return ProfessorDay.objects.get_or_create(professor_id=professor_id, date=date)
 
-@login_required()
-def redirect(request):
-    url = 'exams_scheduler:professor_index' if is_prof(request) else 'exams_scheduler:student_index'
-    return HttpResponseRedirect(reverse(url))
 
-
-class ProfessorView(UserPassesTestMixin, generic.ListView):
-    context_object_name = 'days'
+class ProfessorView(CalendarMixin, UserIsProfessorMixin, generic.TemplateView):
     template_name = 'exams_scheduler/professor_index.html'
-    model = ProfessorDay
-
-    test_func = lambda x: is_prof(x.request.user)
-
-    def get_queryset(self):
-        return ProfessorDay.objects.filter(professor__user=self.request.user)
 
 
-class ProfessorDayView(UserPassesTestMixin, generic.UpdateView):
+class ProfessorDayView(CalendarMixin, UserIsProfessorMixin, generic.UpdateView):
     context_object_name = 'day'
     template_name = 'exams_scheduler/professor_day.html'
     form_class = ProfessorDayForm
-
-    test_func = lambda x: is_prof(x.request.user)
 
     def get_success_url(self):
         return reverse('exams_scheduler:professor_index')
 
     def get_object(self, queryset=None):
-        date = datetime.date(datetime.datetime.now().year, int(self.kwargs['month']), int(self.kwargs['day']))
+        date = datetime.date.today().replace(month=int(self.kwargs['month']), day=int(self.kwargs['day']))
         day, created = get_professor_day(self.request.user.professor.id, date)
 
         return day
 
-    def get_context_data(self, **kwargs):
-        context = super(ProfessorDayView, self).get_context_data(**kwargs)
 
-        days = ProfessorDay.objects.filter(professor=self.request.user.professor)
-        weeks = get_calendar(professor=self.request.user.professor)
-        context['days'] = days
-        context['weeks'] = weeks
+class StudentIndexView(UserIsStudentMixin, generic.ListView):
+    context_object_name = 'professors'
+    template_name = 'exams_scheduler/student_index.html'
 
-        return context
+    def get_queryset(self):
+        return Professor.objects.all()
 
 
-class StudentDetailView(UserPassesTestMixin, generic.ListView):
+class StudentDetailView(CalendarMixin, UserIsStudentMixin, generic.ListView):
     context_object_name = 'days'
     template_name = 'exams_scheduler/student_detail.html'
-
-    test_func = lambda x: is_group(x.request.user)
 
     def get_queryset(self):
         return ProfessorDay.objects.filter(professor_id=self.kwargs['professor_id'])
@@ -144,5 +148,4 @@ def student_delete(request):
     day = get_object_or_404(ProfessorDay, professor_id=professor_id, date=date, exam_group=group)
     day.exam_group = None
     day.save()
-
     return HttpResponse('OK')

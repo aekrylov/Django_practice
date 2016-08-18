@@ -1,4 +1,5 @@
 {% extends 'exams_scheduler/base.html' %}
 {% block content %}
-{{ days }}
+    {{ days }}
+    {% include 'exams_scheduler/calendar.html' with role='student'%}
 {% endblock %}

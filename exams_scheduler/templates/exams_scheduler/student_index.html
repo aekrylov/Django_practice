@@ -1,4 +1,11 @@
 {% extends 'exams_scheduler/base.html' %}
 {% block content %}
 student base
+    <ul>
+        {% for professor in professors %}
+            <li><a href="{% url 'exams_scheduler:student_detail' professor_id=professor.id%}">
+                {{ professor.subject_longname }}
+            </a></li>
+        {% endfor %}
+    </ul>
 {% endblock %}

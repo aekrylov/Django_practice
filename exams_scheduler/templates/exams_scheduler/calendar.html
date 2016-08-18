@@ -4,11 +4,7 @@
         <tr>
         {% for weekday in week %}
             <td class="{% if weekday.available == False %}red{% endif %}">
-            {% if weekday.date != None %}
-                <a href="{% url 'exams_scheduler:professor_day' day=weekday.date.day month=weekday.date.month %}">
-                {{ weekday }}
-                </a>
-            {% endif %}
+            {% include 'exams_scheduler/calendar_day.html' with day=weekday %}
             </td>
         {% endfor %}
         </tr>
